@@ -1,12 +1,43 @@
-  ____     ____            _       _   
- / ___|   / ___|  ___ _ __(_)_ __ | |_ 
-| |   ____\___ \ / __| '__| | '_ \| __|
-| |__|_____|__) | (__| |  | | |_) | |_ 
- \____|   |____/ \___|_|  |_| .__/ \__|
-                            |_|        
-  ____                      _ _           
- / ___|___  _ __ ___  _ __ (_) | ___ _ __ 
-| |   / _ \| '_ ` _ \| '_ \| | |/ _ \ '__|
-| |__| (_) | | | | | | |_) | | |  __/ |   
- \____\___/|_| |_| |_| .__/|_|_|\___|_|   
-                     |_|                  
+C-Script Compiler
+
+Usage: 
+1. Compile
+	./compile nested.c
+
+2. Abstract Syntax Tree
+	./abstract_syntax_tree
+
+3. Parse Tree
+	./parse_tree
+
+4. Clean
+	./clean
+
+5. Credits
+	./credits
+
+Project Structure:
+├── a
+├── abstract_syntax_tree
+├── AST
+│   ├── ast
+│   └── ast.py
+├── clean
+├── compile
+├── Compiler
+│   ├── gcc
+│   └── src
+│       ├── gcc.l
+│       └── gcc.y
+├── credits
+├── IR
+├── parse_tree
+├── README.md
+├── ST
+│   ├── st
+│   └── st.py
+└── Tests
+    ├── custom.c
+    └── nested.c
+
+6 directories, 16 files
