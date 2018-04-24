@@ -1,5 +1,9 @@
+clear
 figlet C-Script Compiler
-toilet -f circle Sraman Choudhury
-toilet -f circle Srikar Chundury
-toilet -f circle Srinivas Shekhar
-toilet -f circle Sumanth S Rao
+toilet -f circle c
+echo Copyright
+echo 
+echo Sraman Choudhury
+echo Srikar Chundury
+echo Srinivas Shekhar
+echo Sumanth S Rao
