@@ -1,0 +1,5 @@
+rm Compiler/a* Compiler/l* Compiler/y*
+rm IR/*
+rm ST/*.html ST/*.pdf
+rm AST/*.html AST/*.pdf
+rm test.c

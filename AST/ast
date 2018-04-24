@@ -1,0 +1,5 @@
+python ast.py | aha > ast.html
+wkhtmltopdf ast.html ast.pdf &>/dev/null
+xdg-open ast.pdf &>/dev/null
+clear
+python ast.py

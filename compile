@@ -1,0 +1,5 @@
+cp Tests/$1 test.c
+cd Compiler
+./gcc
+cd ..
+
