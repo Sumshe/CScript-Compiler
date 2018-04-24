@@ -17,7 +17,6 @@ Usage:
 	./credits
 
 Project Structure:
-├── a
 ├── abstract_syntax_tree
 ├── AST
 │   ├── ast
