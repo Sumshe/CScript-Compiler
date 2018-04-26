@@ -12,12 +12,12 @@ extern FILE* fptr;
 [0-9]+ 						{
 												return NUMBER;
 									}
-"<"						{yylval.str = strdup(yytext); return LT;}
-">"						{yylval.str = strdup(yytext); return GT;}
-">="					{yylval.str = strdup(yytext); return GTE;}
-"<="					{yylval.str = strdup(yytext); return LTE;}
-"=="					{yylval.str = strdup(yytext); return EE;}
-"!="					{yylval.str = strdup(yytext); return NE;}
+"<"								{yylval.str = strdup(yytext); return LT;}
+">"								{yylval.str = strdup(yytext); return GT;}
+">="							{yylval.str = strdup(yytext); return GTE;}
+"<="							{yylval.str = strdup(yytext); return LTE;}
+"=="							{yylval.str = strdup(yytext); return EE;}
+"!="							{yylval.str = strdup(yytext); return NE;}
 "-="							return MIN_E;
 "+="							return PLUS_E;
 "++"							return INCR;
