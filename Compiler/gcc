@@ -1,4 +1,4 @@
-yacc -d src/gcc.y
+yacc -Wnone -d src/gcc.y
 lex src/gcc.l
 gcc -w y.tab.c lex.yy.c -lm -ll -ly
 ./a.out<../test.c
