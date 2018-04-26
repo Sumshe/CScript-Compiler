@@ -1,0 +1,61 @@
+
+F = <NUMBER,9>
+T = F
+E = T
+varAssign = <ID,x> = E
+varDeclrList = varAssign
+DeclrList = varDeclrList
+F = <NUMBER,3>
+T = F
+E = T
+varAssign = <ID,a> = E
+varDeclrList = varAssign
+DeclrList = typeSpecifier varDeclrList
+S = ε
+S = DeclrList S
+F = <ID,a>
+T = F
+E = T
+rel_op = <LT>
+F = <NUMBER,1>
+T = F
+E = T
+RelExpr = E rel_op T
+expression = RelExpr
+COND = expression
+F = <ID,a>
+T = F
+E = T
+rel_op = <LT>
+F = <NUMBER,1>
+T = F
+E = T
+RelExpr = E rel_op T
+expression = RelExpr
+COND = expression
+F = <NUMBER,23>
+T = F
+E = T
+varAssign = <ID,a> = E
+varDeclrList = varAssign
+DeclrList = typeSpecifier varDeclrList
+S = ε
+S = DeclrList S
+F = <NUMBER,11>
+T = F
+F = <NUMBER,2>
+T = T / F
+E = T
+varAssign = <ID,c> = E
+varDeclrList = varAssign
+DeclrList = varDeclrList
+S = ε
+S = DeclrList S
+S1 = S
+S = ε
+S = ifelse COND S S1 S
+S = dowhile S COND S
+S = DeclrList S
+main_func = main S
+Program = main_func
+Start = Program

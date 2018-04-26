@@ -3,6 +3,7 @@
 #include "y.tab.h"
 void yyerror(const char *);
 extern char * yytext;
+extern FILE* fptr;
 %}
 
 %%
@@ -53,5 +54,8 @@ extern char * yytext;
 												yylval.type_val.str = strdup(yytext);
 												return ID;
 									}
+\/\/.*     				;{ fprintf(fptr,"%s",yytext);}
+\/\*([^/]|\/[^*])*\*\/ ;{ fprintf(fptr,"%s",yytext);}
+
 . 								return *yytext;
 %%

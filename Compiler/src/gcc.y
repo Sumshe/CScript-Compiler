@@ -264,11 +264,14 @@ log_op					: '|''|' {push();} {fprintf(prod,"\nlog_op = <||>");}
 								;
 %%
 int check_table(int i,char* name,int g,int l){
+
 	for(int j=0;j<i;j++){
 		if(strcmp(name,symtab[j].name)==0 && arr[symtab[j].l]!=1){
+			printf("\nchecking table %s,l %d,g %d returning %d",name,g,l,j);
 			return j;
 		}
 	}
+	printf("\nchecking table %s,l %d,g %d returning %d not same scope",name,g,l,i);
 	return i;
 }
 void insert(char* name,int i,int type,double val,int g,int l)
