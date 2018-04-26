@@ -1,5 +1,7 @@
 cp Tests/$1 test.c
 cd Compiler
 ./gcc
+cd ../IR
+python src/optimize.py > irc.optimized.3ac
 cd ..
 

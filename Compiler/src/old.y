@@ -3,9 +3,6 @@
 #include<stdlib.h>
 #include<string.h>
 #include<unistd.h>
-#include<ctype.h>
-FILE* fptr;
-extern FILE *yyin;
 
 extern char *yytext;
 char st[100][10];
@@ -13,25 +10,19 @@ int top=0;
 char i_[4]="0";
 char temp[2]="t";
 FILE *icg,*prod;
-int check_table(int i, char *,int,int);
+
 void yyerror(const char *);
 int yylex();
-void insert(char* name,int i,int type,double val,int,int);void begin();
+void insert(char* name,int i,int type);void begin();
 int new_label();
 int push_label();
 int pop_label();
-char* decr(char* new);
-
-int arr[10]={0};
-int global = 0,loc = 0;
+char *decr(char *new);
 
 struct sym
 {
 			char* name;
 			int type;
-			double val;
-			int g;
-			int l;
 };
 
 struct sym symtab[100];
@@ -53,7 +44,6 @@ int label_stack_top = 0;
 			struct{
 						int type;
 						char* str;
-						double val;
 			}type_val;
 			int type;
 			char *str;
@@ -69,7 +59,7 @@ int label_stack_top = 0;
 
 %type <str> rel_op log_op
 %type <type_val> E T F
-%type <type_val> typeSpecifier varDeclrList varAssign DeclrList
+%type <type> typeSpecifier varDeclrList varAssign DeclrList
 
 %start Start
 
@@ -80,10 +70,10 @@ Start						:	Program 																							{
 																																							FILE * sym_fil = fopen("./../IR/SymTab.table","w");
 																																							printf("\n\t---------valid--------\n");
 																																							fprintf(sym_fil,"\n\t ___________________________________________\n\t|            SYMBOL TABLE ENTRIES           |\n\t ___________________________________________\n");
-																																							fprintf(sym_fil,"\n\t\tNAME\t\t\tTYPE\t\t\tVAL\t\t\tGlobal\t\t\tLocal\n\t\t____\t\t\t____\t\t\t____\t\t\t____\t\t\t____\n");
+																																							fprintf(sym_fil,"\n\t\tNAME\t\t\tTYPE\n\t\t____\t\t\t____\n");
 																																							for(int j=0;j<i;j++)
 																																							{
-																																										fprintf(sym_fil,"\n\t%d\t %s\t\t\t%s\t\t\t%f\t\t%d\t\t\t%d\n",j+1,symtab[j].name,attributes[symtab[j].type],symtab[j].val,symtab[j].g,symtab[j].l);
+																																										fprintf(sym_fil,"\n\t%d\t %s\t\t\t%s\n",j+1,symtab[j].name,attributes[symtab[j].type]);
 																																							}
 																																							YYACCEPT;
 																																				};
@@ -93,19 +83,19 @@ Program					: '#' INCLUDE '<' Library '>' Program {fprintf(prod,"\nProgram = # i
 								;
 Library					: HEADER
 								;
-main_func				: VOID MAIN'(' ')' '{'{global++;loc++;} S '}'{arr[loc--]=1;} {fprintf(prod,"\nmain_func = main S");}
-								| typeSpecifier MAIN '(' ')' '{'{global++;loc++;} S '}'{arr[loc--]=1;} {fprintf(prod,"\nmain_func = typeSpecifier MAIN S");}
+main_func				: VOID MAIN'(' ')' '{' S '}' {fprintf(prod,"\nmain_func = main S");}
+								| typeSpecifier MAIN '(' ')' '{' S '}' {fprintf(prod,"\nmain_func = typeSpecifier MAIN S");}
 								;
 S								: DeclrList ';' S {fprintf(prod,"\nS = DeclrList S");}
-								|  IF '(' Cond ')' M '{'{global++;loc++;} S O'}'{arr[loc--]=1;} ELSE N '{'{global++;loc++;} S1 '}'{arr[loc--]=1;} N S {fprintf(prod,"\nS = ifelse COND S S1 S");}
-								| P DO '{'{global++;loc++;} S '}'{arr[loc--]=1;} WHILE '(' Cond ')' Q ';' S {fprintf(prod,"\nS = dowhile S COND S");}
+								|  IF '(' Cond ')' M '{' S O'}' ELSE N '{' S1 '}' N S {fprintf(prod,"\nS = ifelse COND S S1 S");}
+								| P DO '{' S '}' WHILE '(' Cond ')' Q ';' S {fprintf(prod,"\nS = dowhile S COND S");}
 								| UnaryExpr ';' S {fprintf(prod,"\nS = UnaryExpr S");}
 								| RETURN expression ';'
 								|	{fprintf(prod,"\nS = ε");}
 								;
-S1							: S {fprintf(prod,"\nS1 = S");}
-							  ;
 
+S1							: S {fprintf(prod,"\nS1 = S");}
+								;
 
 P								: 											{ 		int l = new_label();
 																							push_label(l);
@@ -148,7 +138,7 @@ Cond						: expression {fprintf(prod,"\nCOND = expression");}
 								;
 DeclrList				: storageClass typeSpecifier varDeclrList 						{fprintf(prod,"\nDeclrList = storageClass typeSpecifier varDeclrList");}
 								| storageClass varDeclrList														{fprintf(prod,"\nDeclrList = storageClass varDeclrList");}
-								| typeSpecifier varDeclrList	{type=0;}												{fprintf(prod,"\nDeclrList = typeSpecifier varDeclrList");}
+								| typeSpecifier varDeclrList													{fprintf(prod,"\nDeclrList = typeSpecifier varDeclrList");}
 								| varDeclrList 																				{fprintf(prod,"\nDeclrList = varDeclrList");}
 								;
 varDeclrList		: ID ',' varDeclrList 			  {fprintf(prod,"\nvarDeclrList = ID varDeclrList");}
@@ -160,27 +150,15 @@ varDeclrList		: ID ',' varDeclrList 			  {fprintf(prod,"\nvarDeclrList = ID varD
 								| varArrayAssign
 								;
 varAssign				: ID{push_2($1.str);} '='{push();} E 								    {
-																																								fprintf(prod,"\nvarAssign = <ID,%s> = E",$1.str);
+																																							fprintf(prod,"\nvarAssign = <ID,%s> = E",$1.str);
 																																							codegen_assign();
-																																							int j = check_table(i,$1.str,global,loc);
-																																							if(j==i){
-																																								insert($1.str,i,type,$5.val,global,loc);
-																																								i++;
-																																							}
-																																							else{
-																																								insert($1.str,j,type,$5.val,global,loc);
-																																							}
+																																							insert($1.str,i,type);
+																																							i++;
 																																				}
 			 				  | ID {push_2($1.str);} '='{push();} E 													 {
 																																														  codegen_assign();
-																																															int j = check_table(i,$1.str,global,loc);
-																																															if(j==i){
-																																																insert($1.str,i,type,$5.val,global,loc);
-																																																i++;
-																																															}
-																																															else{
-																																																insert($1.str,j,type,$5.val,global,loc);
-																																															}
+																																															insert($1.str,i,type);
+																																															i++;
 																																								 }
 																',' varAssign 										{printf("\nvarAssign = <ID,%s> = E varAssign",$1.str);}
 								;
@@ -223,20 +201,20 @@ expression			: RelExpr {fprintf(prod,"\nexpression = RelExpr");}
 								| LogExpr {fprintf(prod,"\nexpression = LogExpr");}
 								| E {fprintf(prod,"\nexpression = E");}
 								;
-RelExpr					: E rel_op E{codegen_relog();} {fprintf(prod,"\nRelExpr = E rel_op T");}
+RelExpr					: E rel_op T{codegen_relog();} {fprintf(prod,"\nRelExpr = E rel_op T");}
 								;
-LogExpr					:  E log_op E{codegen_relog();} {fprintf(prod,"\nLogExpr = E log_op T");}
+LogExpr					:  E log_op T{codegen_relog();} {fprintf(prod,"\nLogExpr = E log_op T");}
 								;
-E								:  E '+'{push();} T{codegen();} {fprintf(prod,"\nE = E + T");$$.val=$1.val+$4.val;}
-								|  E '-'{push();} T{codegen();} {fprintf(prod,"\nE = E - T");$$.val=$1.val-$4.val;}
-								|  T {fprintf(prod,"\nE = T");$$.val=$1.val;}
+E								:  E '+'{push();} T{codegen();} {fprintf(prod,"\nE = E + T");}
+								|  E '-'{push();} T{codegen();} {fprintf(prod,"\nE = E - T");}
+								|  T {fprintf(prod,"\nE = T");}
 								;
-T								:  T '*'{push();} F{codegen();} {fprintf(prod,"\nT = T * F");$$.val=$1.val*$4.val;}
-								|  T '/'{push();} F{codegen();} {fprintf(prod,"\nT = T / F");$$.val=$1.val/$4.val;}
-								|  F{fprintf(prod,"\nT = F"); $$.val=$1.val; }
+T								:  T '*'{push();} F{codegen();} {fprintf(prod,"\nT = T * F");}
+								|  T '/'{push();} F{codegen();} {fprintf(prod,"\nT = T / F");}
+								|  F{fprintf(prod,"\nT = F");}
 								;
 F								: ID 														{fprintf(prod,"\nF = <ID,%s>",$1.str);}{ $$.str=$1.str;push_2($$.str); }
-								| NUMBER												{fprintf(prod,"\nF = <NUMBER,%d>",atoi(yytext));push();$$.val=atoi(yytext);}
+								| NUMBER												{fprintf(prod,"\nF = <NUMBER,%d>",atoi(yytext));push();}
 								| '(' E ')' 										{ fprintf(prod,"\nF = E");$$=$2; }
 								| UnaryExpr
 								| Unary_op
@@ -259,44 +237,16 @@ rel_op					: LT {push();} {fprintf(prod,"\nrel_op = <LT>");}
 								| NE {push();} {fprintf(prod,"\nrel_op = <NE>");}
 								| EE {push();} {fprintf(prod,"\nrel_op = <EE>");}
 								;
-log_op					: '|''|' {push();} {fprintf(prod,"\nlog_op = <||>");}
-								| '&''&' {push();} {fprintf(prod,"\nlog_op = <&&>");}
+log_op					: '|''|' {push();} {printf(prod,"\nlog_op = <||>");}
+								| '&''&' {push();} {printf(prod,"\nlog_op = <&&>");}
 								;
 %%
-int check_table(int i,char* name,int g,int l){
-	for(int j=0;j<i;j++){
-		if(strcmp(name,symtab[j].name)==0 && arr[symtab[j].l]!=1){
-			return j;
-		}
-	}
-	return i;
-}
-void insert(char* name,int i,int type,double val,int g,int l)
+
+void insert(char* name,int i,int type)
 {
-			if(type==16){
-				val=(int)val;
-			}
-			if(type==0){
-				if(isalpha((char)val+'0')){
-					type=15;
-				}
-				if( isdigit( (char)val+'0' ) ){
-					printf("\v----val=%f----\n",val);
-					if( (double)(int)val==val ){
-						printf("\n----%d-----\n",val);
-						type=16;
-					}
-					else{
-						type=18;
-					}
-				}
-			}
 			symtab[i].name=(char *)malloc(sizeof(char)*100);
 			symtab[i].name=name;
-			symtab[i].val=val;
 			symtab[i].type=type;
-			symtab[i].l=l;
-			symtab[i].g=g;
 }
 int new_label()
 {
@@ -367,8 +317,7 @@ char *decr(char *new)
 	return ret;
 }
 int main()
-{		fptr = fopen("./../PreProcess/test.c.comments","w");
-		//yyin = fopen("test","r");
+{
 		icg = fopen("./../IR/irc.3ac","w");
 		prod = fopen("./../IR/parse.log","w");
 			if( !yyparse() )
@@ -376,5 +325,4 @@ int main()
 						printf("\tsuccessful !\n");
 			}
 			fclose(icg);
-			fclose(fptr);
 }

@@ -1,5 +1,5 @@
 rm Compiler/a* Compiler/l* Compiler/y*
-rm IR/*
+rm IR/*.3ac IR/*.table IR/*.log
 rm ST/*.html ST/*.pdf
 rm AST/*.html AST/*.pdf
 rm test.c
