@@ -1,9 +1,14 @@
 clear
-figlet C-Script Compiler
+BLUE='\033[1;34m'
+YELLOW='\033[1;33m'
+toilet -f mono12 -F metal -F border:metal "C-ScriptCompiler"
 toilet -f circle c
-echo Copyright
+echo Copyright 2018
 echo 
-echo Sraman Choudhury
-echo Srikar Chundury
-echo Srinivas Shekhar
-echo Sumanth S Rao
+echo -e "${BLUE}Sraman Choudhury"
+echo -e "${BLUE}Srikar Chundury"
+echo -e "${BLUE}Srinivas Shekhar"
+echo -e "${BLUE}Sumanth S Rao${YELLOW}"
+echo ""
+read -n 1 -s -r -p "Press any key to exit"
+clear
